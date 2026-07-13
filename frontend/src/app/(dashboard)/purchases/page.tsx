@@ -63,8 +63,8 @@ export default function PurchasesPage() {
     setNotes("");
     setLines([{ productId: "", quantity: 1, unitCost: 0 }]);
     setModal(true);
-    if (products.length === 0) api<Paginated<Product>>("/products", { query: { limit: 100 } }).then((r) => setProducts(r.data)).catch(() => {});
-    if (suppliers.length === 0) api<Paginated<Contact>>("/suppliers", { query: { limit: 100 } }).then((r) => setSuppliers(r.data)).catch(() => {});
+    if (products.length === 0) api<Paginated<Product>>("/products", { query: { limit: 100 } }).then((r) => setProducts(r.data)).catch(() => { });
+    if (suppliers.length === 0) api<Paginated<Contact>>("/suppliers", { query: { limit: 100 } }).then((r) => setSuppliers(r.data)).catch(() => { });
   }
 
   function updateLine(i: number, patch: Partial<Line>) {
@@ -172,17 +172,20 @@ export default function PurchasesPage() {
           <div className="space-y-2">
             <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Items</p>
             {lines.map((l, i) => (
-              <div key={i} className="flex items-end gap-2">
-                <div className="flex-1">
-                  <Select value={l.productId} onChange={(e) => onPickProduct(i, e.target.value)}>
+              <div key={i} className="flex items-end gap-4 w-full">
+                <div className="flex-1 min-w-0">
+                  <Select className="w-full" value={l.productId} onChange={(e) => onPickProduct(i, e.target.value)}>
                     <option value="">Select product…</option>
                     {products.map((p) => <option key={p.id} value={p.id}>{p.name} ({p.sku})</option>)}
                   </Select>
                 </div>
-                <Input className="w-20" type="number" min="1" value={l.quantity} onChange={(e) => updateLine(i, { quantity: Number(e.target.value) })} placeholder="Qty" />
-                <Input className="w-28" type="number" step="0.01" min="0" value={l.unitCost} onChange={(e) => updateLine(i, { unitCost: Number(e.target.value) })} placeholder="Unit cost" />
-                <span className="w-24 pb-2 text-right text-sm">{money(l.quantity * l.unitCost, currency)}</span>
-                <Button type="button" size="sm" variant="ghost" onClick={() => setLines((ls) => ls.filter((_, idx) => idx !== i))}><Trash2 size={14} className="text-red-500" /></Button>
+
+                <Input className="flex-1 min-w-0" type="number" min="1" value={l.quantity} onChange={(e) => updateLine(i, { quantity: Number(e.target.value) })} placeholder="Qty" />
+                <Input className="flex-1 min-w-0" type="number" step="0.01" min="0" value={l.unitCost} onChange={(e) => updateLine(i, { unitCost: Number(e.target.value) })} placeholder="Unit cost" />
+                <div className="flex-1 min-w-0 flex items-center justify-between pb-1.5">
+                  <span className="text-sm truncate">{money(l.quantity * l.unitCost, currency)}</span>
+                  <Button type="button" size="sm" variant="ghost" onClick={() => setLines((ls) => ls.filter((_, idx) => idx !== i))}><Trash2 size={14} className="text-red-500" /></Button>
+                </div>
               </div>
             ))}
             <Button type="button" size="sm" variant="outline" onClick={() => setLines((ls) => [...ls, { productId: "", quantity: 1, unitCost: 0 }])}><Plus size={14} /> Add item</Button>
