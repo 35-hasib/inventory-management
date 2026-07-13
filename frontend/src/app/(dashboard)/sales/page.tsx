@@ -67,8 +67,8 @@ export default function SalesPage() {
     setNotes("");
     setLines([{ productId: "", quantity: 1, unitPrice: 0, max: 0 }]);
     setModal(true);
-    if (products.length === 0) api<Paginated<Product>>("/products", { query: { limit: 100 } }).then((r) => setProducts(r.data)).catch(() => {});
-    if (customers.length === 0) api<Paginated<Contact>>("/customers", { query: { limit: 100 } }).then((r) => setCustomers(r.data)).catch(() => {});
+    if (products.length === 0) api<Paginated<Product>>("/products", { query: { limit: 100 } }).then((r) => setProducts(r.data)).catch(() => { });
+    if (customers.length === 0) api<Paginated<Contact>>("/customers", { query: { limit: 100 } }).then((r) => setCustomers(r.data)).catch(() => { });
   }
 
   function updateLine(i: number, patch: Partial<Line>) {
@@ -186,19 +186,54 @@ export default function SalesPage() {
             <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Items</p>
             {lines.map((l, i) => (
               <div key={i}>
-                <div className="flex items-end gap-2">
-                  <div className="flex-1">
-                    <Select value={l.productId} onChange={(e) => onPickProduct(i, e.target.value)}>
+                <div className="flex items-end gap-2 w-full">
+                  <div className="flex-1 min-w-0">
+                    <Select className="w-full" value={l.productId} onChange={(e) => onPickProduct(i, e.target.value)}>
                       <option value="">Select product…</option>
-                      {products.map((p) => <option key={p.id} value={p.id} disabled={p.quantity <= 0}>{p.name} ({p.quantity} in stock)</option>)}
+                      {products.map((p) => (
+                        <option key={p.id} value={p.id} disabled={p.quantity <= 0}>
+                          {p.name} ({p.quantity} in stock)
+                        </option>
+                      ))}
                     </Select>
                   </div>
-                  <Input className="w-20" type="number" min="1" max={l.max || undefined} value={l.quantity} onChange={(e) => updateLine(i, { quantity: Number(e.target.value) })} />
-                  <Input className="w-28" type="number" step="0.01" min="0" value={l.unitPrice} onChange={(e) => updateLine(i, { unitPrice: Number(e.target.value) })} />
-                  <span className="w-24 pb-2 text-right text-sm">{money(l.quantity * l.unitPrice, currency)}</span>
-                  <Button type="button" size="sm" variant="ghost" onClick={() => setLines((ls) => ls.filter((_, idx) => idx !== i))}><Trash2 size={14} className="text-red-500" /></Button>
+
+                  <Input
+                    className="flex-1 min-w-0"
+                    type="number"
+                    min="1"
+                    max={l.max || undefined}
+                    value={l.quantity}
+                    onChange={(e) => updateLine(i, { quantity: Number(e.target.value) })}
+                  />
+
+                  <Input
+                    className="flex-1 min-w-0"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={l.unitPrice}
+                    onChange={(e) => updateLine(i, { unitPrice: Number(e.target.value) })}
+                  />
+
+                  <div className="flex-1 min-w-0 flex items-center justify-between pb-1.5">
+                    <span className="text-sm truncate">
+                      {money(l.quantity * l.unitPrice, currency)}
+                    </span>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setLines((ls) => ls.filter((_, idx) => idx !== i))}
+                    >
+                      <Trash2 size={14} className="text-red-500" />
+                    </Button>
+                  </div>
                 </div>
-                {l.max > 0 && l.quantity > l.max && <p className="pl-1 text-xs text-red-500">Only {l.max} in stock</p>}
+
+                {l.max > 0 && l.quantity > l.max && (
+                  <p className="pl-1 text-xs text-red-500">Only {l.max} in stock</p>
+                )}
               </div>
             ))}
             <Button type="button" size="sm" variant="outline" onClick={() => setLines((ls) => [...ls, { productId: "", quantity: 1, unitPrice: 0, max: 0 }])}><Plus size={14} /> Add item</Button>
