@@ -66,7 +66,7 @@ export default function ProductsPage() {
   }, [load]);
 
   useEffect(() => {
-    api<Category[]>("/categories").then(setCategories).catch(() => {});
+    api<Category[]>("/categories").then(setCategories).catch(() => { });
   }, []);
 
   function openCreate() {
@@ -148,11 +148,12 @@ export default function ProductsPage() {
         actions={isAdmin && <Button onClick={openCreate}><Plus size={16} /> New Product</Button>}
       />
 
-      <div className="mb-4 flex flex-wrap gap-2">
-        <div className="relative flex-1 min-w-[200px]">
+      <div className="mb-4 flex flex-row gap-2">
+        {/* Search Input Container */}
+        <div className="relative flex-1 min-w-0">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
           <Input
-            className="pl-9"
+            className="pl-9 w-full"
             placeholder="Search by name or SKU…"
             value={search}
             onChange={(e) => {
@@ -161,13 +162,15 @@ export default function ProductsPage() {
             }}
           />
         </div>
+
+        {/* Category Select */}
         <Select
           value={categoryId}
           onChange={(e) => {
             setPage(1);
             setCategoryId(e.target.value);
           }}
-          className="w-48"
+          className="w-[120px] sm:w-48 shrink-0"
         >
           <option value="">All categories</option>
           {categories.map((c) => (
